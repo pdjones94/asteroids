@@ -28,7 +28,7 @@ class Asteroid {
     destroy() {
         this.addToScore(this.pointsValue);
 
-        if (this.radius > 20) {
+        if (this.radius > 10) {
             for (let i=0;i<this.children;i++) {
                 const asteroid = new Asteroid({
                     size: this.radius/2,

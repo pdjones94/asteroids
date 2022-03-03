@@ -17,3 +17,7 @@
 .endGame button {
   font-family: monospace;
 }
+
+#map {
+  position: absolute;
+}

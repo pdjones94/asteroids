@@ -9,7 +9,7 @@ class Spaceship {
         };
         this.radius = 20;
         this.rotation = 0;
-        this.rotationalSpeed = 1.5;
+        this.rotationalSpeed = 2;
         this.acceleration = 0;
         this.accelerationConstant = 0.01;
         // this.speed = 0;
