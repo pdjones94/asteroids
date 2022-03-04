@@ -1,5 +1,9 @@
 import Projectile from "./Projectile";
-
+const keyMap = {
+    Left: 'L',
+    Right: 'R',
+    Forward: 'F'
+}
 class Spaceship {
     constructor(props) {
         this.position = props.position;
@@ -9,7 +13,7 @@ class Spaceship {
         };
         this.radius = 20;
         this.rotation = 0;
-        this.rotationalSpeed = 1.5;
+        this.rotationalSpeed = 2;
         this.acceleration = 0;
         this.accelerationConstant = 0.01;
         // this.speed = 0;
@@ -19,6 +23,7 @@ class Spaceship {
         this.lastShot = 0;
         this.create = props.create;
         this.onDeath = props.onDeath;
+        this.isEnemy = false;
     }
 
     remove() {
@@ -29,17 +34,18 @@ class Spaceship {
 
 
     handleRotate(direction) {
-        if (direction === 'L') {
+        if (direction === keyMap.Left) {
             this.rotation -= this.rotationalSpeed;
         }
-        if (direction === 'R') {
+        if (direction === keyMap.Right) {
             this.rotation += this.rotationalSpeed; 
         }
+        // console.log('rotation:',this.rotation);
         // console.log(this.rotation);
     }
 
     handleAcceleration(direction) {
-        if (direction === 'F') {
+        if (direction === keyMap.Forward) {
             if (this.acceleration < 2) {
                 this.acceleration += this.accelerationConstant;
             }

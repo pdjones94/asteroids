@@ -17,3 +17,28 @@
 .endGame button {
   font-family: monospace;
 }
+
+#map {
+  position: absolute;
+}
+
+.currentScore {
+  position: absolute;
+  top: 2%;
+  left: 2%;
+  z-index: 1;
+}
+
+.currentScore span {
+  font-family: monospace;
+  color: white;
+  font-size: 20px;
+  display: block;
+}
+
+.highScore {
+  right: 0%;
+  position: absolute;
+  color: white;
+  z-index: 1;
+}

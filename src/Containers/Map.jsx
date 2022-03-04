@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Asteroid from '../Components/Asteroid';
+import EnemyShip from '../Components/EnemyShip';
 import { randomNumberBetweenExcluding } from '../Components/helpers';
 import Spaceship from '../Components/Spaceship';
 
@@ -40,6 +41,7 @@ class Map extends Component {
         this.ship = [];
         this.projectiles = [];
         this.asteroids = [];
+        this.enemyShips = [];
     }
 
     keyHandler(val, event) {
@@ -97,7 +99,6 @@ class Map extends Component {
 
     update() {
         const context = this.state.context;
-        // const ship = this.ship;
         context.save();
 
         context.fillStyle = '#000';
@@ -105,17 +106,20 @@ class Map extends Component {
         context.fillRect(0, 0, this.state.screen.width, this.state.screen.height);
         context.globalAlpha = 1;
 
-        if (this.asteroids.length === 0) {
+        if (this.enemiesAreDead()) {
             this.setState({asteroidCount: this.state.asteroidCount+1, level: this.state.level+1});
             this.generateAsteroids(this.state.asteroidCount);
         }
 
         this.handleCollisions(this.projectiles, this.asteroids, true);
+        this.handleCollisions(this.projectiles, this.enemyShips);
+        this.handleCollisions(this.projectiles, this.ship);
         this.handleCollisions(this.ship, this.asteroids);
 
         this.updateObjects(this.ship, 'ship');
         this.updateObjects(this.projectiles, 'projectiles');
         this.updateObjects(this.asteroids, 'asteroids');
+        this.updateObjects(this.enemyShips, 'enemyShips');
         context.restore();
         requestAnimationFrame(() => {this.update()})
     }
@@ -144,9 +148,21 @@ class Map extends Component {
         }
     }
 
+    generateEnemyShip() {
+        console.log('Generating Enemy ship');
+        const enemyShip = new EnemyShip({
+            position: {
+                x: this.state.screen.width,
+                y: this.state.screen.height*0.1
+            },
+            addToScore: this.addToTotalScore.bind(this),
+            create: this.addToGameState.bind(this)
+        });
+        this.addToGameState(enemyShip, 'enemyShips');
+    }
+
     generateAsteroids(count) {
         const ship = this.ship[0];
-        // console.log(`Generating ${count} Asteroids`);
         for (let i = 0; i < count; i++) {
             const asteroid = new Asteroid({
                 size: 80,
@@ -175,7 +191,20 @@ class Map extends Component {
         }
     }
 
+    enemiesAreDead() {
+        return (this.asteroids.length === 0 && this.enemyShip.length === 0);
+    }
+
     doObjectsCollide(objectA, objectB) {
+        //Prevent friendly fire
+        if (!objectA.isEnemy && !objectB.isEnemy) {
+            return false;
+        }
+        //Prevent enemy friendly fire
+        if (objectA.isEnemy && objectB.isEnemy) {
+            return false;
+        }
+
         const diffX = objectA.position.x - objectB.position.x;
         const diffY = objectA.position.y - objectB.position.y;
         const aToB = Math.sqrt(diffX**2 + diffY**2);
@@ -204,8 +233,10 @@ class Map extends Component {
 
         this.addToGameState(ship, 'ship');
         this.asteroids = [];
+        this.enemyShips = [];
+        this.projectiles = [];
         this.generateAsteroids(startingAsteroidCount);
-
+        this.generateEnemyShip();
     }
 
     gameOver() {
@@ -217,22 +248,45 @@ class Map extends Component {
 
     render() {
         let endGame;
+        let currentScore;
+        let highScoreEle;
+        const storedHighScore = localStorage.getItem('high_score');
+        const highScore = (storedHighScore) ? parseInt(storedHighScore) : 0;
+
 
         if (!this.state.gameRunning) {
+            if (this.state.score > highScore || highScore === 0) {
+                localStorage.setItem('high_score', this.state.score);
+            }
             endGame = (
                 <div className="endGame">
                     <p>Game Over!</p>
                     <p>Score: {this.state.score}</p>
+                    <p>Level: {this.state.level}</p>
                     <button
                         onClick={this.startGame.bind(this)}>
                         Start Again
                     </button>
                 </div>
             )
+        } else {
+            currentScore = (
+                <div className="currentScore">
+                    <span>Score: {this.state.score}</span>
+                    <span>Level: {this.state.level}</span>
+                </div>
+            )
         }
 
+        highScoreEle = (
+            <div className='highScore'>
+                <span>High Score: {highScore}</span>
+            </div>
+        )
         return (
             <div>
+                {currentScore}
+                {highScoreEle}
                 {endGame}
                 <canvas id='map' height={this.state.screen.height} width={this.state.screen.width}/>
             </div>

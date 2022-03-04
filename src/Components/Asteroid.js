@@ -12,11 +12,12 @@ class Asteroid {
         this.rotation = 0;
         this.rotationalSpeed = 1;
         this.radius = props.size;
-        this.children = 3;
+        this.children = 2;
         this.create = props.create
         this.vertices = asteroidVertices(randomIntBetween(6,10), props.size);
         this.pointsValue = Math.ceil((100/this.radius)*2);
         this.addToScore = props.addToScore;
+        this.isEnemy = true;
         // console.log('Creating asteroid with', props)
     }
 
@@ -28,7 +29,7 @@ class Asteroid {
     destroy() {
         this.addToScore(this.pointsValue);
 
-        if (this.radius > 20) {
+        if (this.radius > 10) {
             for (let i=0;i<this.children;i++) {
                 const asteroid = new Asteroid({
                     size: this.radius/2,

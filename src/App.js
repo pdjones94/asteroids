@@ -3,9 +3,7 @@ import Map from './Containers/Map';
 
 function App() {
   return (
-    <div className="Asteroids">
-      <Map/>
-    </div>
+    <Map/>
   );
 }
 
