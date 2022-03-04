@@ -20,6 +20,7 @@
 
 #map {
   position: absolute;
+<<<<<<< HEAD
 }
 
 .currentScore {
@@ -41,4 +42,6 @@
   position: absolute;
   color: white;
   z-index: 1;
+=======
+>>>>>>> bbd2994bb48a34add092956ae42237b7fb0a3426
 }
