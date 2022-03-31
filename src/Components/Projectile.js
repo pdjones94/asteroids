@@ -15,13 +15,13 @@ class Projectile {
             y: posDelta.y / this.projectileSpeed
         }
         this.radius = props.size;
-        this.maxLife = 1500;
+        this.maxLife = props.maxLife;
         this.born = Date.now();
         this.delete = false;
         this.isEnemy = props.isEnemy;
     }
 
-    remove() {
+    hit() {
         // console.log('removing projectile');
         this.delete = true;
     }
@@ -43,7 +43,7 @@ class Projectile {
         }
 
         if (Date.now() - this.born > this.maxLife) {
-            this.remove();
+            this.hit();
         } else {
             // console.log(this.life);
             this.life++;

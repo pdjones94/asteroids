@@ -26,7 +26,7 @@ class Spaceship {
         this.isEnemy = false;
     }
 
-    remove() {
+    hit() {
         this.delete = true;
         this.onDeath();
         //death animation
@@ -73,7 +73,7 @@ class Spaceship {
 
     shoot() {
         if (Date.now() - this.lastShot > this.shootSpeed) {
-            const bullet = new Projectile({ship: this, size: 2})
+            const bullet = new Projectile({ship: this, size: 2, maxLife: 1500})
             // console.log('creating projectile');
             this.create(bullet, 'projectiles')
             this.lastShot = Date.now();

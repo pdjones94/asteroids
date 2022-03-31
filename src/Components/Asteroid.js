@@ -21,7 +21,7 @@ class Asteroid {
         // console.log('Creating asteroid with', props)
     }
 
-    remove() {
+    hit() {
         this.delete = true;
         this.destroy();
     }

@@ -13,7 +13,8 @@ const KEYS = {
     A: 65,
     S: 83,
     D: 68,
-    SPACE: 32
+    SPACE: 32,
+    PAUSE: 80
 }
 const startingAsteroidCount = 3;
 
@@ -36,7 +37,8 @@ class Map extends Component {
             asteroidCount: 3,
             gameRunning: true,
             level: 1,
-            score: 0
+            score: 0,
+            gamePaused: false
         }
         this.ship = [];
         this.projectiles = [];
@@ -66,6 +68,11 @@ class Map extends Component {
             case KEYS.SPACE:
                 keys.shoot = val;
                 break;
+            case KEYS.PAUSE:
+                if (event.type === 'keyup') {
+                    this.pauseGame();
+                }
+                break;
             default:
                 break;
         }
@@ -79,6 +86,15 @@ class Map extends Component {
                 height: window.innerHeight
             }
         })
+    }
+
+    pauseGame() {
+        if (this.state.gameRunning) {
+            this.setState({gamePaused: !this.state.gamePaused});
+            if (!this.state.gamePaused) {
+                requestAnimationFrame(() => {this.update()})
+            }
+        }
     }
 
     componentDidMount() {
@@ -109,6 +125,13 @@ class Map extends Component {
         if (this.enemiesAreDead()) {
             this.setState({asteroidCount: this.state.asteroidCount+1, level: this.state.level+1});
             this.generateAsteroids(this.state.asteroidCount);
+            if (this.state.level > 1) {
+                for (let i=1; i <= this.state.level; i++) {
+                    setTimeout(() => {
+                        this.generateEnemyShip();
+                    }, 5000*i);
+                }
+            }
         }
 
         this.handleCollisions(this.projectiles, this.asteroids, true);
@@ -121,7 +144,9 @@ class Map extends Component {
         this.updateObjects(this.asteroids, 'asteroids');
         this.updateObjects(this.enemyShips, 'enemyShips');
         context.restore();
-        requestAnimationFrame(() => {this.update()})
+        if (!this.state.gamePaused) {
+            requestAnimationFrame(() => {this.update()})
+        }
     }
 
     updateObjects(items, type) {
@@ -149,14 +174,15 @@ class Map extends Component {
     }
 
     generateEnemyShip() {
-        console.log('Generating Enemy ship');
         const enemyShip = new EnemyShip({
             position: {
                 x: this.state.screen.width,
                 y: this.state.screen.height*0.1
             },
             addToScore: this.addToTotalScore.bind(this),
-            create: this.addToGameState.bind(this)
+            create: this.addToGameState.bind(this),
+            // life: this.state.level - 1
+            life: 2
         });
         this.addToGameState(enemyShip, 'enemyShips');
     }
@@ -181,10 +207,10 @@ class Map extends Component {
         for (let i = objectsA.length-1; i >= 0; i--) {
             for (let j = objectsB.length-1; j >= 0; j--) {
                 if (this.doObjectsCollide(objectsA[i], objectsB[j])) {
-                    objectsA[i].remove();
-                    objectsB[j].remove();
+                    objectsA[i].hit();
+                    objectsB[j].hit();
                     if (log) {
-                        console.log('SCORE:',this.state.score);
+                        // console.log('SCORE:',this.state.score);
                     }
                 }
             }
@@ -192,7 +218,7 @@ class Map extends Component {
     }
 
     enemiesAreDead() {
-        return (this.asteroids.length === 0 && this.enemyShip.length === 0);
+        return (this.asteroids.length === 0 && this.enemyShips.length === 0);
     }
 
     doObjectsCollide(objectA, objectB) {
@@ -250,6 +276,7 @@ class Map extends Component {
         let endGame;
         let currentScore;
         let highScoreEle;
+        let pauseMenu;
         const storedHighScore = localStorage.getItem('high_score');
         const highScore = (storedHighScore) ? parseInt(storedHighScore) : 0;
 
@@ -269,7 +296,20 @@ class Map extends Component {
                     </button>
                 </div>
             )
-        } else {
+        } else if (this.state.gamePaused) {
+            pauseMenu = (
+                <div className="pauseMenu">
+                    <p>Game Paused</p>
+                    <p>Score: {this.state.score}</p>
+                    <p>Level: {this.state.level}</p>
+                    {/* <button
+                        onClick={this.pauseGame.bind(this)}>
+                        Continue
+                    </button> */}
+                </div>
+            )
+        }
+        else {
             currentScore = (
                 <div className="currentScore">
                     <span>Score: {this.state.score}</span>
@@ -288,6 +328,7 @@ class Map extends Component {
                 {currentScore}
                 {highScoreEle}
                 {endGame}
+                {pauseMenu}
                 <canvas id='map' height={this.state.screen.height} width={this.state.screen.width}/>
             </div>
         );

@@ -1,4 +1,4 @@
-.endGame {
+.pauseMenu, .endGame {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -9,7 +9,7 @@
   background: rgba(255,255,255,0.5);
 }
 
-.endGame p {
+.pauseMenu, .endGame p {
   font-family: monospace;
   font-size: 30px;
 }

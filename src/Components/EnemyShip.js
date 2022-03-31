@@ -1,5 +1,8 @@
 import Projectile from "./Projectile";
 
+const hitColour = '#FF2D00';
+const baseColour = '#FFFFFF';
+
 class EnemyShip {
     constructor(props) {
         this.position = props.position;
@@ -16,19 +19,29 @@ class EnemyShip {
         this.pointsValue = 200;
         this.isEnemy = true;
         this.addToScore = props.addToScore;
+        this.life = props.life;
+        this.outlineColour = baseColour;
         // this.onDeath = props.onDeath;
     }
 
-    remove() {
-        this.delete = true;
-        this.addToScore(this.pointsValue);
-        // this.onDeath();
-        //death animation
+    hit() {
+        this.life -= 1;
+        if (this.life === 0) {
+            //death animation
+            this.delete = true;
+            this.addToScore(this.pointsValue);
+        } else {
+            //hit animation
+            this.outlineColour = hitColour;
+            setTimeout(() => {
+                this.outlineColour = baseColour
+            }, 100);
+        }
     }
 
     shoot() {
         if (Date.now() - this.lastShot > this.shootSpeed) {
-            const bullet = new Projectile({ship: this, size: 2, isEnemy: true})
+            const bullet = new Projectile({ship: this, size: 2, isEnemy: true, maxLife: 1000})
             // console.log('creating projectile');
             this.create(bullet, 'projectiles')
             this.lastShot = Date.now();
@@ -64,7 +77,8 @@ class EnemyShip {
         context.translate(this.position.x, this.position.y);
         // console.log(this.rotation);
         // context.rotate(this.rotation * Math.PI / 180);
-        context.strokeStyle = '#ffffff';
+
+        context.strokeStyle = this.outlineColour;
         context.fillStyle = '#000000';
         context.lineWidth = 3;
         context.beginPath();
