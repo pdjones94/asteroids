@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Asteroid from '../Components/Asteroid';
 import EnemyShip from '../Components/EnemyShip';
 import { randomNumberBetweenExcluding } from '../Components/helpers';
+import PowerUp from '../Components/PowerUp';
 import Spaceship from '../Components/Spaceship';
 
 const KEYS = {
@@ -44,6 +45,7 @@ class Map extends Component {
         this.projectiles = [];
         this.asteroids = [];
         this.enemyShips = [];
+        this.powerUps = [];
     }
 
     keyHandler(val, event) {
@@ -138,11 +140,13 @@ class Map extends Component {
         this.handleCollisions(this.projectiles, this.enemyShips);
         this.handleCollisions(this.projectiles, this.ship);
         this.handleCollisions(this.ship, this.asteroids);
+        this.handleCollisions(this.ship, this.powerUps);
 
         this.updateObjects(this.ship, 'ship');
         this.updateObjects(this.projectiles, 'projectiles');
         this.updateObjects(this.asteroids, 'asteroids');
         this.updateObjects(this.enemyShips, 'enemyShips');
+        this.updateObjects(this.powerUps, 'powerUps');
         context.restore();
         if (!this.state.gamePaused) {
             requestAnimationFrame(() => {this.update()})
@@ -185,6 +189,20 @@ class Map extends Component {
             life: 2
         });
         this.addToGameState(enemyShip, 'enemyShips');
+    }
+
+    generatePowerUp() {
+        const ship = this.ship[0];
+        const startLeft = Math.random() < 0.5;
+        const powerUp = new PowerUp({
+            position: {
+                x: startLeft ? 0 : this.state.screen.width,
+                y: randomNumberBetweenExcluding(0, this.state.screen.height, ship.position.y-60, ship.position.y+60)
+            },
+            addToScore: this.addToTotalScore.bind(this),
+            startLeft: startLeft
+        });
+        this.addToGameState(powerUp, 'powerUps');
     }
 
     generateAsteroids(count) {
@@ -261,8 +279,10 @@ class Map extends Component {
         this.asteroids = [];
         this.enemyShips = [];
         this.projectiles = [];
+        this.powerUps = [];
         this.generateAsteroids(startingAsteroidCount);
         this.generateEnemyShip();
+        this.generatePowerUp();
     }
 
     gameOver() {
