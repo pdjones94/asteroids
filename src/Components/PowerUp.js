@@ -1,3 +1,4 @@
+// import { shotTypes } from "./helpers";
 class PowerUp {
     constructor(props) {
         this.position = props.position;
@@ -12,10 +13,10 @@ class PowerUp {
         this.lastShot = 0;
         // this.create = props.create;
         this.pointsValue = 200;
-        this.isEnemy = true;
         this.addToScore = props.addToScore;
         this.life = props.life;
         this.isEnemy = false;
+        this.shotType = props.shotType;
         // this.onDeath = props.onDeath;
     }
 

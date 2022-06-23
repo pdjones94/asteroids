@@ -8,7 +8,8 @@ class Projectile {
             x: props.ship.position.x + posDelta.x,
             y: props.ship.position.y + posDelta.y
         }
-        this.projectileSpeed = 2;
+        console.log(props.shotType);
+        this.projectileSpeed = props.shotType.speed;
         this.rotation = props.ship.rotation;
         this.velocity = {
             x: posDelta.x / this.projectileSpeed,

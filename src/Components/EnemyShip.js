@@ -1,5 +1,5 @@
 import Projectile from "./Projectile";
-
+import { shotTypes } from "./helpers";
 const hitColour = '#FF2D00';
 const baseColour = '#FFFFFF';
 
@@ -21,6 +21,7 @@ class EnemyShip {
         this.addToScore = props.addToScore;
         this.life = props.life;
         this.outlineColour = baseColour;
+        this.shotType = shotTypes.default;
         // this.onDeath = props.onDeath;
     }
 
@@ -41,7 +42,7 @@ class EnemyShip {
 
     shoot() {
         if (Date.now() - this.lastShot > this.shootSpeed) {
-            const bullet = new Projectile({ship: this, size: 2, isEnemy: true, maxLife: 1000})
+            const bullet = new Projectile({ship: this, size: 2, isEnemy: true, maxLife: 1000, shotType: this.shotType})
             // console.log('creating projectile');
             this.create(bullet, 'projectiles')
             this.lastShot = Date.now();

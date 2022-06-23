@@ -32,3 +32,17 @@ export function randomNumberBetweenExcluding(min, max, minEx, maxEx) {
   }
   return randomNumber;
 }
+
+export const shotTypes = {
+  default: {
+      speed: 2
+  },
+  fastFire: {
+      speed: 2,
+      rate: 100
+  }
+}
+
+export function isEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}

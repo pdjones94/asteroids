@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import Asteroid from '../Components/Asteroid';
 import EnemyShip from '../Components/EnemyShip';
-import { randomNumberBetweenExcluding } from '../Components/helpers';
+import { randomNumberBetweenExcluding, shotTypes } from '../Components/helpers';
 import PowerUp from '../Components/PowerUp';
 import Spaceship from '../Components/Spaceship';
+import { isEmpty } from '../Components/helpers';
 
 const KEYS = {
     UP: 38,
@@ -200,7 +201,8 @@ class Map extends Component {
                 y: randomNumberBetweenExcluding(0, this.state.screen.height, ship.position.y-60, ship.position.y+60)
             },
             addToScore: this.addToTotalScore.bind(this),
-            startLeft: startLeft
+            startLeft: startLeft,
+            shotType: shotTypes.fastFire
         });
         this.addToGameState(powerUp, 'powerUps');
     }
@@ -224,13 +226,18 @@ class Map extends Component {
     handleCollisions(objectsA, objectsB, log=false) {
         for (let i = objectsA.length-1; i >= 0; i--) {
             for (let j = objectsB.length-1; j >= 0; j--) {
-                if (this.doObjectsCollide(objectsA[i], objectsB[j])) {
+                const collision = this.doObjectsCollide(objectsA[i], objectsB[j]);
+                if (collision.hit && isEmpty(collision.powerUp)) {
                     objectsA[i].hit();
                     objectsB[j].hit();
                     if (log) {
                         // console.log('SCORE:',this.state.score);
                     }
+                } else if(collision.hit && !isEmpty(collision.powerUp)) {
+                    objectsA[i].powerUp(collision.powerUp.shotType);
+                    objectsB[j].hit();
                 }
+                
             }
         }
     }
@@ -240,22 +247,35 @@ class Map extends Component {
     }
 
     doObjectsCollide(objectA, objectB) {
-        //Prevent friendly fire
-        if (!objectA.isEnemy && !objectB.isEnemy) {
-            return false;
+        const collision = {
+            hit: false,
+            powerUp: {}
         }
+        //Prevent friendly fire
         //Prevent enemy friendly fire
         if (objectA.isEnemy && objectB.isEnemy) {
-            return false;
+            return collision;
         }
-
+        
         const diffX = objectA.position.x - objectB.position.x;
         const diffY = objectA.position.y - objectB.position.y;
         const aToB = Math.sqrt(diffX**2 + diffY**2);
         if (aToB < objectA.radius + objectB.radius) {
-            return true;
+            if (!objectA.isEnemy && !objectB.isEnemy) {
+                if (objectB instanceof(PowerUp)) {
+                    collision.hit = true;
+                    collision.powerUp = {
+                        shotType: objectB.shotType
+                    };
+                    return collision
+                };
+                return collision;
+            } else {
+                collision.hit = true;
+                return collision;
+            }
         } else {
-            return false;
+            return collision;
         }
     }
 
@@ -272,7 +292,8 @@ class Map extends Component {
                 y: this.state.screen.height / 2
             },
             create: this.addToGameState.bind(this),
-            onDeath: this.gameOver.bind(this)
+            onDeath: this.gameOver.bind(this),
+            shotType: shotTypes.default
         });
 
         this.addToGameState(ship, 'ship');

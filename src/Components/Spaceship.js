@@ -1,4 +1,5 @@
 import Projectile from "./Projectile";
+import { shotTypes } from "./helpers";
 const keyMap = {
     Left: 'L',
     Right: 'R',
@@ -24,6 +25,7 @@ class Spaceship {
         this.create = props.create;
         this.onDeath = props.onDeath;
         this.isEnemy = false;
+        this.shotType = shotTypes.default;
     }
 
     hit() {
@@ -56,6 +58,12 @@ class Spaceship {
         this.accelerate();
     }
 
+    powerUp(powerUp) {
+        console.log(powerUp);
+        this.shotType = powerUp;
+        this.shootSpeed = powerUp.rate;
+    }
+
     accelerate() {
         this.velocity.x -= Math.sin(-this.rotation*Math.PI/180) * this.acceleration * 0.1;
         this.velocity.y -= Math.cos(-this.rotation*Math.PI/180) * this.acceleration * 0.1;
@@ -73,7 +81,7 @@ class Spaceship {
 
     shoot() {
         if (Date.now() - this.lastShot > this.shootSpeed) {
-            const bullet = new Projectile({ship: this, size: 2, maxLife: 1500})
+            const bullet = new Projectile({ship: this, size: 2, maxLife: 1500, shotType: this.shotType})
             // console.log('creating projectile');
             this.create(bullet, 'projectiles')
             this.lastShot = Date.now();
